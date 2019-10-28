@@ -28,9 +28,7 @@ public class Job {
 	// verwendeteResourcen[3] --> capacities of resource R4
 	int[] verwendeteResourcen;
 	
-	
-	
-	
+
 	public Job(int nummer, ArrayList<Integer> nachfolger, int dauer, int[] verwendeteResourcen){
 		this.nummer = nummer;
 		this.nachfolger = nachfolger;
@@ -69,7 +67,7 @@ public class Job {
 		for(int i = 0; i < jobs.length; i++){
 			if (nummer == jobs[i].nummer)
 			{
-				j = jobs[i];
+				return jobs[i];
 			}
 		}
 		return j;

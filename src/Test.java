@@ -3,23 +3,28 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Test {
-	
-	
-	
 	
 	public static void main (String[] args) throws FileNotFoundException{
 //		Job[] jobs     = Job.read(new File("j1201_5.sm"));//best makespan=112
 //		Resource[] res = Resource.read(new File("j1201_5.sm"));
-		Job[] jobs     = Job.read(new File("j12046_8.sm"));
-		Resource[] res = Resource.read(new File("j12046_8.sm"));
-
+//		Job[] jobs     = Job.read(new File("j12046_8.sm"));
+//		Resource[] res = Resource.read(new File("j12046_8.sm"));
+		Job[] jobs     = Job.read(new File("j12.sm"));
+		Resource[] res = Resource.read(new File("j12.sm"));
 		
 		
 		for(int i = 0; i < jobs.length; i++){
 			jobs[i].calculatePredecessors(jobs);
 		}
+		
+		Schedule s = new Schedule();
+		
+		s.initializeJobList(jobs);
+		System.out.println(Arrays.toString(s.jobListe));
+		
 		auslesen(jobs);
 		auslesen(res);
 	}
@@ -52,7 +57,7 @@ public class Test {
 	private static void auslesen(Resource[] resource) {
 		for (int i = 0; i < resource.length; i++){
 			System.out.print("Resource: " + resource[i].nummer()+"     |    ");
-			System.out.println("Verf�gbarkeit: " + resource[i].maxVerfuegbarkeit());
+			System.out.println("Verfuegbarkeit: " + resource[i].maxVerfuegbarkeit());
 		}
 	}
 	
