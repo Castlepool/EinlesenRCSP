@@ -9,7 +9,7 @@ public class Schedule {
 	int[] schedule; // phänotype (Startzeitpunkte fuer Jobs der JobListe)
 	
 	public void initializeJobList(Job[] jobs) {
-		// jobs in (mit Nummer als Key) in HashMap speichern (zur schnelleren Suche eines Jobs anhand seiner Nummer)
+		// jobs (mit Nummer als Key) in HashMap speichern (zur schnelleren Suche eines Jobs anhand seiner Nummer)
 		HashMap<Integer, Job> jobsMap = new HashMap<Integer, Job>();
 		for (Job job : jobs) {
 			jobsMap.put(job.nummer, job);
