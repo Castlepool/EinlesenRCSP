@@ -15,18 +15,17 @@ public class Test {
 		Job[] jobs     = Job.read(new File("j12.sm"));
 		Resource[] res = Resource.read(new File("j12.sm"));
 		
-		
 		for(int i = 0; i < jobs.length; i++){
 			jobs[i].calculatePredecessors(jobs);
 		}
 		
+		auslesen(jobs);
+		auslesen(res);
+		
 		Schedule s = new Schedule();
 		
 		s.initializeJobList(jobs);
-		System.out.println(Arrays.toString(s.jobListe));
-		
-		auslesen(jobs);
-		auslesen(res);
+		System.out.println("\njobListe: " + Arrays.toString(s.jobListe));
 	}
 	
 	

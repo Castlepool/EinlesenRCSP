@@ -7,7 +7,7 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class Job {
+public class Job implements Comparable<Job>{
 
 	// Number of a job
 	int nummer;
@@ -63,14 +63,13 @@ public class Job {
 	}
 	
 	public static Job getJob(Job[] jobs, int nummer){
-		Job j = null;
 		for(int i = 0; i < jobs.length; i++){
 			if (nummer == jobs[i].nummer)
 			{
 				return jobs[i];
 			}
 		}
-		return j;
+		return null;
 	}
 	public void calculatePredecessors(Job[] l){
 		for(int i = 0; i < l.length; i++) {
@@ -190,4 +189,33 @@ public class Job {
 		}	
 		return jobs;
 	}
+
+	@Override
+	public int compareTo(Job other) {
+		return this.dauer - other.dauer;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + nummer;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Job other = (Job) obj;
+		if (nummer != other.nummer)
+			return false;
+		return true;
+	}
+	
+	
 }
