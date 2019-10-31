@@ -6,26 +6,64 @@ import java.util.Arrays;
 public class Test {
 	
 	public static void main (String[] args) throws FileNotFoundException{
-//		Job[] jobs     = Job.read(new File("j1201_5.sm"));//best makespan=112
-//		Resource[] res = Resource.read(new File("j1201_5.sm"));
-//		Job[] jobs     = Job.read(new File("j12046_8.sm"));
-//		Resource[] res = Resource.read(new File("j12046_8.sm"));
-		Job[] jobs     = Job.read(new File("j12.sm"));
-		Resource[] res = Resource.read(new File("j12.sm"));
+		// make schedule for our single test-dataset
+		makeSchedule("j12.sm");
 		
-		Arrays.stream(jobs).forEach( job -> job.calculatePredecessors(jobs));
-		
-		printPretty(jobs);
-		printPretty(res);
-		
-		Schedule s = new Schedule();
-		s.initializeJobList(jobs);
-		
-		System.out.println("\njobList: " + Arrays.toString(s.jobList) 
-						+  "\nschedule: " + Arrays.toString(s.schedule));
+		// make schedule for all 600 j120-datasets
+//		makeSchedules("scheduling-datasets_j120");
 	}
 	
+	private static void makeSchedule(String filePath) throws FileNotFoundException{
+		Job[] jobs     			= Job.read(new File(filePath));
+		Resource[] resources 	= Resource.read(new File(filePath));
+		
+		for (Job job : jobs) {
+			job.calculatePredecessors(jobs);
+		}
+		
+		printPretty(jobs);
+		printPretty(resources);
+		
+		Schedule schedule = new Schedule();
+		long start = System.nanoTime();
+		schedule.initializeJobList(jobs);
+		long duration = System.nanoTime() - start;
+		
+		System.out.println("\njobList: " + Arrays.toString(schedule.jobList) 
+						+ "\nschedule: " + Arrays.toString(schedule.schedule)
+						+ "\ninitializeJobList() took " + duration/1000000 + " milliseconds\n");
+	}
 	
+	private static void makeSchedules(String directory) throws FileNotFoundException{
+		Job[] jobs;
+		Resource[] resources;
+		Schedule schedule;
+		int scheduleCount = 1;
+		
+		File dir = new File(directory);
+		File[] directoryListing = dir.listFiles();
+		if (directoryListing != null) {
+			for (File childFile : directoryListing) {		// make schedule for each dataset-file in directory
+				jobs   		= Job.read(childFile);
+				resources 	= Resource.read(childFile);
+				
+				for (Job job : jobs) job.calculatePredecessors(jobs);
+				
+				System.out.println("Dataset-File " + scheduleCount++ + " (" + childFile.getName() + "):\n");
+				printPretty(jobs);
+				printPretty(resources);
+				
+				schedule = new Schedule();
+				long start = System.nanoTime();
+				schedule.initializeJobList(jobs);
+				long duration = System.nanoTime() - start;
+				
+				System.out.println("\njobList: " + Arrays.toString(schedule.jobList) 
+								+ "\nschedule: " + Arrays.toString(schedule.schedule)
+								+ "\ninitializeJobList() took " + duration/1000000 + " milliseconds\n");
+			}
+		}
+	}
 
 	private static void printPretty(Job[] jobs) {
 		int totalDuration = 0;

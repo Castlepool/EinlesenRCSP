@@ -6,7 +6,7 @@ import java.util.List;
 
 public class Schedule {
 
-	// these two list form the schedule:
+	// these two lists form the schedule:
 	int[] jobList; // job-sequence
 	int[] schedule; // starting-times of jobs in jobList
 	
