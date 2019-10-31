@@ -1,27 +1,24 @@
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 public class Resource {
 	
-	// Number of a resource
-	private int nummer;
+	private int id;
 	
-	// Maximum availability 
-	 int maxVerfuegbarkeit;
+	int maxAvailability;
 		
-	public Resource(int verfuegbarkeit, int nummer){
-		this.maxVerfuegbarkeit = verfuegbarkeit;
-		this.nummer = nummer;
+	public Resource(int availability, int id){
+		this.maxAvailability = availability;
+		this.id = id;
 	}
 	
-	public int maxVerfuegbarkeit(){
-		return maxVerfuegbarkeit;
+	public int getMaxAvailability(){
+		return maxAvailability;
 	}
 	
-	public int nummer(){
-		return nummer;
+	public int getId(){
+		return id;
 	}
 	
 	public static Resource[] read(File file) throws FileNotFoundException {

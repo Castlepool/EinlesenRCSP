@@ -1,63 +1,41 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 public class Schedule {
 
-	// Diese zwei Listen sind zusammen der fertige Schedule:
-	int[] jobListe; // genotype
-	int[] schedule; // phänotype (Startzeitpunkte fuer Jobs der JobListe)
+	// these two list form the schedule:
+	int[] jobList; // job-sequence
+	int[] schedule; // starting-times of jobs in jobList
 	
 	public void initializeJobList(Job[] jobs) {
-		// jobs (mit Nummer als Key) in HashMap speichern (zur schnelleren Suche eines Jobs anhand seiner Nummer)
-		HashMap<Integer, Job> jobsMap = new HashMap<Integer, Job>();
-		for (Job job : jobs) {
-			jobsMap.put(job.nummer, job);
-		}
+		HashMap<Integer, Job> jobMap = new HashMap<Integer, Job>();						// jobs in HashMap for faster search by id
+		Arrays.stream(jobs).forEach(job -> jobMap.put(job.getId(), job));
+
+		List<Job> eligibleJobs = Collections.synchronizedList(new ArrayList<Job>());	// synchronized list for safe parallel processing
+		jobList = new int[jobs.length];
 		
-		ArrayList<Job> eligibleJobs = new ArrayList<Job>();	// planbare Jobs (als TreeSet, damit immer kuerzester Job an erster Stelle))
-		jobListe = new int[jobs.length];
-		
-		// Mit Dummy-Job starten
+		// start with dummy-job and make his successors eligible
 		int count = 0;
-		jobListe[count] = jobs[0].nummer();					// Dummy-Job ist immer der 0te Job der Liste
-		count++;
-		ArrayList<Integer> nachfolgerAkt = jobs[0].nachfolger();
-		for (int i = 0; i < nachfolgerAkt.size(); i++) {	// Nachfolgerjobs des Dummys planbar machen
-			eligibleJobs.add(jobsMap.get(nachfolgerAkt.get(i)));
-		}
+		jobList[count++] = jobs[0].getId();					// dummy is always first job in list
+		jobs[0].getSuccessors().parallelStream().forEach( successorId -> eligibleJobs.add(jobMap.get(successorId)));
 		
-		// Hauptschleife
-		while(count != jobs.length) { 					// solange noch ungeplante Jobs
-			Job min = Collections.min(eligibleJobs);	// kuerzesten planbaren Job auswaehlen (KOZ-Regel)
-			jobListe[count] = min.nummer;				// Job einplanen
-			count++;										
+		// main-loop: add jobs to jobList in valid order (until no more left)
+		while(count != jobs.length) {
+			Job min = Collections.min(eligibleJobs);		// choose shortest job
+			jobList[count++] = min.getId();					// put it in jobList							
 			eligibleJobs.remove(min);
 			
-			nachfolgerAkt = min.nachfolger();			// Nachfolger des Jobs betrachten
-			
-			for(int i = 0; i < nachfolgerAkt.size(); i++) {
-				Job aktuellerNachfolgerJob = jobsMap.get(nachfolgerAkt.get(i));
-				ArrayList<Integer> vorgaengerAkt = aktuellerNachfolgerJob.vorgaenger;
-				boolean alleVorgaenger = true;
-				for (int j = 0; j < vorgaengerAkt.size(); j++) { 	// die Vorgaenger anschaun
-					boolean found = false;
-					for(int k = 0; k < jobListe.length; k++) { 		// ist dieser Vorgaenger schon eingeplant (also in der jobListe)?
-						if(jobListe[k] == vorgaengerAkt.get(j)) {
-							found = true;
-							break;
-						}
-					}
-					if(!found) {	// Sobald ein Vorgaenger NICHT in jobListe gefunden, verlasse die Schleife
-						alleVorgaenger = false;
-						break;
-					}
-				}
-				if(alleVorgaenger) {
-					eligibleJobs.add(jobsMap.get(nachfolgerAkt.get(i)));
-				}
-			}
+			// look at its successors and make them eligible if their predecessors are all planned already
+			min.getSuccessors().parallelStream().forEach( successorId -> {
+				boolean allPredecessorsPlanned = jobMap.get(successorId).getPredecessors().parallelStream().allMatch( predecessorId -> {
+					return Arrays.stream(jobList).anyMatch( jobListId -> jobListId == predecessorId);
+				});
+				if(allPredecessorsPlanned) 
+					eligibleJobs.add(jobMap.get(successorId));
+			});
 		}
 	}
-
 }

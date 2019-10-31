@@ -1,8 +1,6 @@
 
-
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Test {
@@ -15,48 +13,43 @@ public class Test {
 		Job[] jobs     = Job.read(new File("j12.sm"));
 		Resource[] res = Resource.read(new File("j12.sm"));
 		
-		for(int i = 0; i < jobs.length; i++){
-			jobs[i].calculatePredecessors(jobs);
-		}
+		Arrays.stream(jobs).forEach( job -> job.calculatePredecessors(jobs));
 		
-		auslesen(jobs);
-		auslesen(res);
+		printPretty(jobs);
+		printPretty(res);
 		
 		Schedule s = new Schedule();
-		
 		s.initializeJobList(jobs);
-		System.out.println("\njobListe: " + Arrays.toString(s.jobListe));
+		
+		System.out.println("\njobList: " + Arrays.toString(s.jobList) 
+						+  "\nschedule: " + Arrays.toString(s.schedule));
 	}
 	
 	
-	
-	
-	
-	
-	
-	private static void auslesen(Job[] jobs) {
-		int gesamtDauer = 0;
+
+	private static void printPretty(Job[] jobs) {
+		int totalDuration = 0;
 		for (int i = 0; i < jobs.length; i++){
-			gesamtDauer += jobs[i].dauer();
+			totalDuration += jobs[i].getDuration();
 			
-			System.out.printf("Nummer: %3d | Nachfolger: %-15s | Vorgaenger: %-15s | Dauer: %2d | R1: %2d R2: %2d R3: %2d R4: %2d | %n",
-					jobs[i].nummer(),
-					jobs[i].nachfolger().toString(),
-					jobs[i].vorgaenger().toString(),
-					jobs[i].dauer(),
-					jobs[i].verwendeteResource(0),
-					jobs[i].verwendeteResource(1),
-					jobs[i].verwendeteResource(2),
-					jobs[i].verwendeteResource(3)
+			System.out.printf("id: %3d | successors: %-15s | predecessors: %-15s | duration: %2d | R1: %2d R2: %2d R3: %2d R4: %2d | %n",
+					jobs[i].getId(),
+					jobs[i].getSuccessors().toString(),
+					jobs[i].getPredecessors().toString(),
+					jobs[i].getDuration(),
+					jobs[i].requiredResourceCapacity(0),
+					jobs[i].requiredResourceCapacity(1),
+					jobs[i].requiredResourceCapacity(2),
+					jobs[i].requiredResourceCapacity(3)
 				);
 		}
-		System.out.println("T = " + gesamtDauer);
+		System.out.println("T = " + totalDuration);
 	}
 	
-	private static void auslesen(Resource[] resource) {
+	private static void printPretty(Resource[] resource) {
 		for (int i = 0; i < resource.length; i++){
-			System.out.print("Resource: " + resource[i].nummer()+"     |    ");
-			System.out.println("Verfuegbarkeit: " + resource[i].maxVerfuegbarkeit());
+			System.out.print("resourceId: " + resource[i].getId()+"     |    ");
+			System.out.println("availability: " + resource[i].getMaxAvailability());
 		}
 	}
 	

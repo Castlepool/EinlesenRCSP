@@ -1,88 +1,86 @@
 /*
- * Einlese-Programm wurde von Studierende der HFT Stuttgart entwickelt 
+ * Einlese-Programm wurde von Studierenden der HFT Stuttgart entwickelt 
  */
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class Job implements Comparable<Job>{
 
-	// Number of a job
-	int nummer;
+	int id;
 	
-	// successors; each element contains the job-number (int)
-	ArrayList<Integer> nachfolger;
+	// successors; each element contains the job-id (int)
+	ArrayList<Integer> successors;
 	
-	// predecessors; each element contains the job-number (int)
-	ArrayList<Integer> vorgaenger;
+	// predecessors; each element contains the job-id (int)
+	ArrayList<Integer> predecessors;
 	
-	// duration of a job
-	int dauer;
+	int duration;
 	
 	// needed resource capacities  
-	// verwendeteResourcen[0] --> capacities of resource R1
-	// verwendeteResourcen[1] --> capacities of resource R2
-	// verwendeteResourcen[2] --> capacities of resource R3
-	// verwendeteResourcen[3] --> capacities of resource R4
-	int[] verwendeteResourcen;
+	// requiredResourceCapacities[0] --> capacities of resource R1
+	// requiredResourceCapacities[1] --> capacities of resource R2
+	// requiredResourceCapacities[2] --> capacities of resource R3
+	// requiredResourceCapacities[3] --> capacities of resource R4
+	int[] requiredResourceCapacities;
 	
 
-	public Job(int nummer, ArrayList<Integer> nachfolger, int dauer, int[] verwendeteResourcen){
-		this.nummer = nummer;
-		this.nachfolger = nachfolger;
-		this.dauer = dauer;
-		this.verwendeteResourcen = verwendeteResourcen;
-		this.vorgaenger = new ArrayList<Integer>();
+	public Job(int id, ArrayList<Integer> successors, int duration, int[] usedResources){
+		this.id = id;
+		this.successors = successors;
+		this.duration = duration;
+		this.requiredResourceCapacities = usedResources;
+		this.predecessors = new ArrayList<Integer>();
 	}
 	
-	public int nummer(){
-		return nummer;
+	public int getId(){
+		return id;
 	}
 	
-	public ArrayList<Integer> nachfolger(){
-		return nachfolger;
+	public ArrayList<Integer> getSuccessors(){
+		return successors;
 	}
-	public ArrayList<Integer> vorgaenger(){
-		return vorgaenger;
+	public ArrayList<Integer> getPredecessors(){
+		return predecessors;
 	}
-	public int dauer(){
-		return dauer;
+	public int getDuration(){
+		return duration;
 	}
 	
-	public int verwendeteResource(int i){
-		if(i >= 0 && i <= 3)
-			return verwendeteResourcen[i];
+	public int requiredResourceCapacity(int resourceId){
+		if(resourceId >= 0 && resourceId <= 3)
+			return requiredResourceCapacities[resourceId];
 		else
 			throw new IllegalArgumentException("Parameter muss zwischen 0 und 3 sein!");
 	}
 	
-	public int anzahlNachfolger(){
-		return nachfolger.size();
+	public int numberOfSuccessors(){
+		return successors.size();
 	}
 	
-	public static Job getJob(Job[] jobs, int nummer){
+	public static Job getJob(Job[] jobs, int id){
 		for(int i = 0; i < jobs.length; i++){
-			if (nummer == jobs[i].nummer)
+			if (id == jobs[i].id)
 			{
 				return jobs[i];
 			}
 		}
 		return null;
 	}
-	public void calculatePredecessors(Job[] l){
-		for(int i = 0; i < l.length; i++) {
-			
-			ArrayList<Integer> iNachfolger = l[i].nachfolger();
-			
-			for(int j = 0; j < iNachfolger.size(); j++) {
-				if(iNachfolger.get(j) == this.nummer()) {
-					vorgaenger.add(l[i].nummer());
+	
+	public void calculatePredecessors(Job[] jobs){
+		Arrays.stream(jobs).forEach( job -> {
+			job.getSuccessors().stream().forEach( successorJobId -> {
+				if(successorJobId == this.id) {
+					predecessors.add(job.getId());
 				}
-			}
-		}
+			});
+		});
 	}
+	
 	public static Job[] read(File file) throws FileNotFoundException {
 		
 		Scanner scanner = new Scanner(file);
@@ -192,14 +190,14 @@ public class Job implements Comparable<Job>{
 
 	@Override
 	public int compareTo(Job other) {
-		return this.dauer - other.dauer;
+		return this.duration - other.duration;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + nummer;
+		result = prime * result + id;
 		return result;
 	}
 
@@ -212,7 +210,7 @@ public class Job implements Comparable<Job>{
 		if (getClass() != obj.getClass())
 			return false;
 		Job other = (Job) obj;
-		if (nummer != other.nummer)
+		if (id != other.id)
 			return false;
 		return true;
 	}
