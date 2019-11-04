@@ -8,9 +8,9 @@ public class Test {
 	public static void main (String[] args) throws FileNotFoundException{
 		// make schedule for our single test-dataset
 		makeSchedule("j12.sm");
-		makeSchedule("scheduling-datasets_j120/j1205_8.sm");
+//		makeSchedule("scheduling-datasets_j120/j1205_8.sm");
 		// make schedule for all 600 j120-datasets
-//		makeSchedules("scheduling-datasets_j120");
+		makeSchedules("scheduling-datasets_j120");
 	}
 	
 	private static void makeSchedule(String filePath) throws FileNotFoundException{
@@ -29,6 +29,7 @@ public class Test {
 		long start = System.nanoTime();
 		schedule.initializeJobList(jobs);
 		long duration = System.nanoTime() - start;
+		schedule.decodeJobList(jobs, resources);
 		
 		System.out.println("\njobList: " + Arrays.toString(schedule.jobList) 
 						+ "\nschedule: " + Arrays.toString(schedule.schedule)

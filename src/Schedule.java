@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
@@ -10,8 +11,10 @@ public class Schedule {
 	int[] jobList; // job-sequence
 	int[] schedule; // starting-times of jobs in jobList
 	
+	HashMap<Integer, Job> jobMap;
+	
 	public void initializeJobList(Job[] jobs) {
-		HashMap<Integer, Job> jobMap = new HashMap<Integer, Job>();						// jobs in HashMap for faster search by id
+		jobMap = new HashMap<Integer, Job>();						// jobs in HashMap for faster search by id
 		Arrays.stream(jobs).forEach(job -> jobMap.put(job.getId(), job));
 
 		List<Job> eligibleJobs = Collections.synchronizedList(new ArrayList<Job>());	// synchronized list for safe parallel processing
@@ -38,4 +41,71 @@ public class Schedule {
 			});
 		}
 	}
+	
+	public void decodeJobList(Job[] jobs, Resource[] res){
+		//calculate the starting times of the jobs in the order of jobList
+		schedule = new int[jobList.length];
+		
+		//calculate the maximum possible makespan "maxDuration" of the project (you could also get that from the dataset-file when reading)
+		int maxDuration = 0;//alt shift R
+		for(int i = 0; i < jobs.length; i++){
+			maxDuration += jobs[i].duration;
+		}
+		
+		// available resurces for each period
+		int[][] resourcenTableau = new int[res.length][maxDuration];
+		
+		for(int i = 0; i < resourcenTableau.length; i++){
+			for(int j = 0; j < resourcenTableau[i].length; j++){
+				resourcenTableau[i][j] = res[i].maxAvailability;
+			}
+		}
+		
+		for(int i = 0; i < jobList.length; i++){
+			
+			int nr = jobList[i];
+						
+			Job j = Job.getJob(jobs, nr);
+			
+			int p1 = earliestPossibleStarttime(j, jobs);
+			int p2 = starttime(j, p1, resourcenTableau);
+			actualizeResources(j, resourcenTableau, p2);
+			
+			schedule[i] = p2;
+		}
+		
+	}
+
+	private int earliestPossibleStarttime(Job j, Job[] jobs) {
+		
+		// find max endTime of predecessors
+		int maxPredecessorEndTime = 0;
+		for (int predecessorID : j.getPredecessors()) {
+			for (int i = 0; i < jobList.length; i++) {
+				if(predecessorID == jobList[i]) {
+					int endTime = schedule[i] + jobMap.get(predecessorID).duration;
+					if( endTime > maxPredecessorEndTime) {
+						maxPredecessorEndTime = endTime;
+					}
+					break;
+				}
+			}
+		}
+		
+		// TODO: check available resource capacities
+		
+		
+		return maxPredecessorEndTime;
+	}
+	
+	private int starttime(Job j, int p1, int[][] resourcenTableau) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	
+	private void actualizeResources(Job j, int[][] resourcenTableau, int p2) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
