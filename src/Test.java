@@ -43,11 +43,12 @@ public class Test {
 				schedule = new Schedule();
 				long start = System.nanoTime();
 				schedule.initializeJobList(jobs);
+				schedule.decodeJobList(jobs, resources);
 				long duration = System.nanoTime() - start;
 				
-				System.out.println("\njobList: " + Arrays.toString(schedule.jobList) 
+				System.out.println("\njobList:  " + Arrays.toString(schedule.jobList) 
 								+ "\nschedule: " + Arrays.toString(schedule.schedule)
-								+ "\ninitializeJobList() took " + duration/1000 + " microseconds\n\n");
+								+ "\ninitializeJobList() and decodeJobList() took " + duration/1000 + " microseconds\n\n");
 			}
 		}
 	}

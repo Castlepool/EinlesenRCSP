@@ -1,7 +1,6 @@
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
@@ -63,11 +62,11 @@ public class Schedule {
 			maxDuration += jobs[i].duration;
 		
 		// available resurces for each period
-		int[][] resourcenTableau = new int[res.length][maxDuration];
+		int[][] resourceTableau = new int[res.length][maxDuration];
 		
-		for(int i = 0; i < resourcenTableau.length; i++){
-			for(int j = 0; j < resourcenTableau[i].length; j++)
-				resourcenTableau[i][j] = res[i].maxAvailability;
+		for(int i = 0; i < resourceTableau.length; i++){
+			for(int j = 0; j < resourceTableau[i].length; j++)
+				resourceTableau[i][j] = res[i].maxAvailability;
 		}
 		
 		// calculate starting times (job after job, in order of jobList)
@@ -75,12 +74,11 @@ public class Schedule {
 			Job j = jobMap.get(jobList[i]);
 			
 			int p1 = earliestPossibleStarttime(j, jobs);
-			int p2 = starttime(j, p1, resourcenTableau);
-			actualizeResources(j, resourcenTableau, p2);
+			int p2 = starttime(j, p1, resourceTableau);
+			actualizeResources(j, resourceTableau, p2);
 			
 			schedule[i] = p2;
 		}
-		
 	}
 
 	private int earliestPossibleStarttime(Job j, Job[] jobs) {
@@ -99,14 +97,26 @@ public class Schedule {
 		return maxPredecessorEndTime;
 	}
 	
-	private int starttime(Job j, int p1, int[][] resourcenTableau) {
-		// TODO: check available resource capacities and adjust starttime accordingly
-		return 0;
+	private int starttime(Job job, int p1, int[][] resourceTableau) {
+		// start at period p1 and check ressource-availability for whole job-duration
+		// if not enough of a resource in period i, set p1 to i+1
+		for(int i = p1; i < p1 + job.getDuration(); i++){
+			for(int j = 0; j < resourceTableau.length; j++) {
+				if(resourceTableau[j][i] < job.requiredResourceCapacity(j)) {
+					p1 = i + 1;
+					break;
+				}
+			}
+		}
+		return p1;
 	}
 	
-	private void actualizeResources(Job j, int[][] resourcenTableau, int p2) {
-		// TODO: subtract used resources for given job (j) at given start-time (p2)
-		
+	private void actualizeResources(Job job, int[][] resourceTableau, int p2) {
+		// subtract used resources for given job (j) starting from its start-time (p2)
+		int jobEnd = p2 + job.getDuration();
+		for(int i = p2; i < jobEnd; i++) {
+			for(int j = 0; j < resourceTableau.length; j++)
+				resourceTableau[j][i] -= job.requiredResourceCapacity(j);
+		}
 	}
-
 }
