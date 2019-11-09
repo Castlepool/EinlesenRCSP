@@ -47,25 +47,20 @@ public class Schedule {
 		schedule = new int[jobList.length];
 		
 		//calculate the maximum possible makespan "maxDuration" of the project (you could also get that from the dataset-file when reading)
-		int maxDuration = 0;//alt shift R
-		for(int i = 0; i < jobs.length; i++){
+		int maxDuration = 0;
+		for(int i = 0; i < jobs.length; i++)
 			maxDuration += jobs[i].duration;
-		}
 		
 		// available resurces for each period
 		int[][] resourcenTableau = new int[res.length][maxDuration];
 		
 		for(int i = 0; i < resourcenTableau.length; i++){
-			for(int j = 0; j < resourcenTableau[i].length; j++){
+			for(int j = 0; j < resourcenTableau[i].length; j++)
 				resourcenTableau[i][j] = res[i].maxAvailability;
-			}
 		}
 		
 		for(int i = 0; i < jobList.length; i++){
-			
-			int nr = jobList[i];
-						
-			Job j = Job.getJob(jobs, nr);
+			Job j = jobMap.get(jobList[i]);
 			
 			int p1 = earliestPossibleStarttime(j, jobs);
 			int p2 = starttime(j, p1, resourcenTableau);
@@ -77,34 +72,28 @@ public class Schedule {
 	}
 
 	private int earliestPossibleStarttime(Job j, Job[] jobs) {
-		
-		// find max endTime of predecessors
+		// find max endTime of predecessors (Zero if there are no predecessors)
 		int maxPredecessorEndTime = 0;
 		for (int predecessorID : j.getPredecessors()) {
 			for (int i = 0; i < jobList.length; i++) {
 				if(predecessorID == jobList[i]) {
 					int endTime = schedule[i] + jobMap.get(predecessorID).duration;
-					if( endTime > maxPredecessorEndTime) {
+					if( endTime > maxPredecessorEndTime)
 						maxPredecessorEndTime = endTime;
-					}
 					break;
 				}
 			}
 		}
-		
-		// TODO: check available resource capacities
-		
-		
 		return maxPredecessorEndTime;
 	}
 	
 	private int starttime(Job j, int p1, int[][] resourcenTableau) {
-		// TODO Auto-generated method stub
+		// TODO: check available resource capacities and adjust starttime accordingly
 		return 0;
 	}
 	
 	private void actualizeResources(Job j, int[][] resourcenTableau, int p2) {
-		// TODO Auto-generated method stub
+		// TODO: subtract used resources for given job (j) at given start-time (p2)
 		
 	}
 

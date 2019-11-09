@@ -6,36 +6,12 @@ import java.util.Arrays;
 public class Test {
 	
 	public static void main (String[] args) throws FileNotFoundException{
-		// make schedule for our single test-dataset
-		makeSchedule("j12.sm");
-//		makeSchedule("scheduling-datasets_j120/j1205_8.sm");
-		// make schedule for all 600 j120-datasets
-		makeSchedules("scheduling-datasets_j120");
+		makeSchedules("j12.sm"); 					// make schedule for our single test-dataset
+//		makeSchedules("scheduling-datasets_j120");	// make schedule for all 600 j120-datasets
 	}
 	
-	private static void makeSchedule(String filePath) throws FileNotFoundException{
-		Job[] jobs     			= Job.read(new File(filePath));
-		Resource[] resources 	= Resource.read(new File(filePath));
-		
-		for (Job job : jobs) {
-			job.calculatePredecessors(jobs);
-		}
-		
-		System.out.println("Dataset-File (" + filePath + "):\n");
-		printPretty(jobs);
-		printPretty(resources);
-		
-		Schedule schedule = new Schedule();
-		long start = System.nanoTime();
-		schedule.initializeJobList(jobs);
-		long duration = System.nanoTime() - start;
-		schedule.decodeJobList(jobs, resources);
-		
-		System.out.println("\njobList: " + Arrays.toString(schedule.jobList) 
-						+ "\nschedule: " + Arrays.toString(schedule.schedule)
-						+ "\ninitializeJobList() took " + duration/1000000 + " milliseconds\n\n");
-	}
-	
+	// method that makes and prints schedules from ".sm"-files
+	// param can be a single ".sm"-file or a directory with ".sm"-files in it
 	private static void makeSchedules(String directory) throws FileNotFoundException{
 		Job[] jobs;
 		Resource[] resources;
@@ -43,9 +19,18 @@ public class Test {
 		int scheduleCount = 1;
 		
 		File dir = new File(directory);
-		File[] directoryListing = dir.listFiles();
+		File[] directoryListing = null;
+		if(dir.isDirectory()) {
+			directoryListing = dir.listFiles();
+		}else {
+			directoryListing = new File[1];
+			directoryListing[0] = dir;
+		}
+
 		if (directoryListing != null) {
 			for (File childFile : directoryListing) {		// make schedule for each dataset-file in directory
+				if(!childFile.getName().endsWith(".sm")) continue;
+				
 				jobs   		= Job.read(childFile);
 				resources 	= Resource.read(childFile);
 				
