@@ -47,7 +47,7 @@ public class Test {
 				
 				System.out.println("\njobList: " + Arrays.toString(schedule.jobList) 
 								+ "\nschedule: " + Arrays.toString(schedule.schedule)
-								+ "\ninitializeJobList() took " + duration/1000000 + " milliseconds\n\n");
+								+ "\ninitializeJobList() took " + duration/1000 + " microseconds\n\n");
 			}
 		}
 	}

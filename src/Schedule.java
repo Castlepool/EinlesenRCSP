@@ -11,19 +11,20 @@ public class Schedule {
 	int[] jobList; // job-sequence
 	int[] schedule; // starting-times of jobs in jobList
 	
-	HashMap<Integer, Job> jobMap;
+	HashMap<Integer, Job> jobMap;	// HashMap to get job by id
 	
 	public void initializeJobList(Job[] jobs) {
-		jobMap = new HashMap<Integer, Job>();						// jobs in HashMap for faster search by id
+		jobMap = new HashMap<Integer, Job>();		// jobs in HashMap for faster search by id
 		Arrays.stream(jobs).forEach(job -> jobMap.put(job.getId(), job));
 
-		List<Job> eligibleJobs = Collections.synchronizedList(new ArrayList<Job>());	// synchronized list for safe parallel processing
+		List<Job> eligibleJobs = new ArrayList<Job>();
 		jobList = new int[jobs.length];
 		
 		// start with dummy-job and make his successors eligible
 		int count = 0;
 		jobList[count++] = jobs[0].getId();					// dummy is always first job in list
-		jobs[0].getSuccessors().parallelStream().forEach( successorId -> eligibleJobs.add(jobMap.get(successorId)));
+		for (int successorID : jobs[0].getSuccessors())
+			eligibleJobs.add(jobMap.get(successorID));
 		
 		// main-loop: add jobs to jobList in valid order (until no more left)
 		while(count != jobs.length) {
@@ -32,21 +33,31 @@ public class Schedule {
 			eligibleJobs.remove(min);
 			
 			// look at its successors and make them eligible if their predecessors are all planned already
-			min.getSuccessors().parallelStream().forEach( successorId -> {
-				boolean allPredecessorsPlanned = jobMap.get(successorId).getPredecessors().parallelStream().allMatch( predecessorId -> {
-					return Arrays.stream(jobList).anyMatch( jobListId -> jobListId == predecessorId);
-				});
+			for (int successorID : min.getSuccessors()) {
+				boolean allPredecessorsPlanned = true;
+				for (int predecessorID : jobMap.get(successorID).getPredecessors()) {
+					boolean found = false;
+					for (int plannedJobID : jobList) {
+						if(plannedJobID == predecessorID) {
+							found = true;
+							break;
+						}
+					}
+					if(!found) {
+						allPredecessorsPlanned = false;
+						break;
+					}
+				}
 				if(allPredecessorsPlanned) 
-					eligibleJobs.add(jobMap.get(successorId));
-			});
+					eligibleJobs.add(jobMap.get(successorID));
+			}
 		}
 	}
 	
 	public void decodeJobList(Job[] jobs, Resource[] res){
-		//calculate the starting times of the jobs in the order of jobList
 		schedule = new int[jobList.length];
 		
-		//calculate the maximum possible makespan "maxDuration" of the project (you could also get that from the dataset-file when reading)
+		// calculate maximum possible makespan of project
 		int maxDuration = 0;
 		for(int i = 0; i < jobs.length; i++)
 			maxDuration += jobs[i].duration;
@@ -59,6 +70,7 @@ public class Schedule {
 				resourcenTableau[i][j] = res[i].maxAvailability;
 		}
 		
+		// calculate starting times (job after job, in order of jobList)
 		for(int i = 0; i < jobList.length; i++){
 			Job j = jobMap.get(jobList[i]);
 			
