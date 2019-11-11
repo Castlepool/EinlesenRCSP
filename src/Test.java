@@ -49,6 +49,13 @@ public class Test {
 				System.out.println("\njobList:  " + Arrays.toString(schedule.jobList) 
 								+ "\nschedule: " + Arrays.toString(schedule.schedule)
 								+ "\ninitializeJobList() and decodeJobList() took " + duration/1000 + " microseconds\n\n");
+				
+				start = System.nanoTime();
+				schedule.shift();
+				duration = System.nanoTime() - start;
+				System.out.println("\njobList:  " + Arrays.toString(schedule.jobList) 
+								+ "\nschedule: " + Arrays.toString(schedule.schedule)
+								+ "\nshift() took " + duration/1000 + " microseconds\n\n");
 			}
 		}
 	}
