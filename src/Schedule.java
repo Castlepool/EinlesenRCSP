@@ -167,12 +167,15 @@ public class Schedule {
 	}
 	
 	private int starttimeInShift(Job job, int endTime) {
-		// start at period p1 and check ressource-availability for whole job-duration
+		// start at endTime and check ressource-availability for whole job-duration
 		// if not enough of a resource in period i, set p1 to i+1
-		for(int i = endTime; i >= endTime - job.getDuration(); i--){
+		for(int i = (endTime-1); i >= endTime - job.getDuration(); i--){
 			for(int j = 0; j < resourceTableau.length; j++) {
+				if(i == -1) {
+					System.out.println("Error in Shift: i = -1");
+				}
 				if(resourceTableau[j][i] < job.requiredResourceCapacity(j)) {
-					endTime = i - 1;
+					endTime = i;
 					break;
 				}
 			}
