@@ -14,15 +14,14 @@ import java.util.Scanner;
 public class Test {
 	
 	public static void main (String[] args) throws IOException{
-		int iterationCount = 0;
-//		makeSchedules("j12.sm"); 					// make schedule for our single test-dataset
-		while(iterationCount < 2) {
-			iterationCount++;
-			System.out.println("\nITERATION " + iterationCount + ":\n");
+		int iterationCounter = 0;
+		while(iterationCounter < 1) {
+			iterationCounter++;
+			System.out.println("\nITERATION " + iterationCounter + ":\n");
 			makeSchedules("instances");					// make schedule for all 600 j120-datasets
 		}
 		
-		System.out.println("\nIterations made: " + iterationCount);
+		System.out.println("\nIterations made: " + iterationCounter);
 	}
 	
 	// method that makes and prints schedules from ".sm"-files
