@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -30,12 +31,12 @@ public class Schedule {
 		
 		// main-loop: add jobs to jobList in valid order (until no more left)
 		while(count != jobs.length) {
-			Job min = Collections.min(eligibleJobs);		// choose shortest job
-			jobList[count++] = min.getId();					// put it in jobList							
-			eligibleJobs.remove(min);
+			Job chosenJob = random(eligibleJobs);					// choose random eligible job
+			jobList[count++] = chosenJob.getId();					// put it in jobList							
+			eligibleJobs.remove(chosenJob);
 			
 			// look at its successors and make them eligible if their predecessors are all planned already
-			for (int successorID : min.getSuccessors()) {
+			for (int successorID : chosenJob.getSuccessors()) {
 				boolean allPredecessorsPlanned = true;
 				for (int predecessorID : jobMap.get(successorID).getPredecessors()) {
 					boolean found = false;
@@ -251,4 +252,11 @@ public class Schedule {
 	         sort(arr, arr2, pi+1, high); 
 	     } 
 	 }
+	 
+	 // get random element from collection
+	 public static <T> T random(Collection<T> coll) {
+		    int num = (int) (Math.random() * coll.size());
+		    for(T t: coll) if (--num < 0) return t;
+		    throw new AssertionError();
+		}
 }
